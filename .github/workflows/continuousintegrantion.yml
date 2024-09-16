@@ -3,27 +3,32 @@ on:
     pull_request:
         branches:
             -main
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Lint
-    runs-on: ubuntu-latest'
-
-    permissions:
-        contents: read
-        packages: read
-        # To report GitHub Actions status checks
-        statuses: write
+    runs-on: ubuntu-latest
 
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
         with:
-            # super-linter needs the full git history to get the
-            # list of files that changed across commits
             fetch-depth: 0
-    
-      - name: Super-linter
-        uses: super-linter/super-linter@v7.1.0 # x-release-please-version
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+      
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          # either 'goreleaser' (default) or 'goreleaser-pro'
+          distribution: goreleaser
+          # 'latest', 'nightly', or a semver
+          version: '~> v2'
+          args: release --clean
         env:
-          # To report GitHub Actions status checks
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Your GoReleaser Pro key, if you are using the 'goreleaser-pro' distribution
+          # GORELEASER_KEY: ${{ secrets.GORELEASER_KEY }}
