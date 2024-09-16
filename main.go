@@ -89,3 +89,26 @@ func isDraw() bool {
 	}
 	return true
 }
+
+func main() {
+	var row, col int
+	initializeBoard()
+	for {
+		displayBoard()
+		fmt.Printf("Jogador %c, insira a linha e a coluna: ", currentPlayer)
+
+		makeMove(row, col)
+
+		if winner := checkWinner(); winner != EMPTY {
+			displayBoard()
+			fmt.Printf("Jogador %c venceu!\n", winner)
+			break
+		} else if isDraw() {
+			displayBoard()
+			fmt.Println("Empate!")
+			break
+		}
+
+		switchPlayer()
+	}
+}
