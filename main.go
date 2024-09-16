@@ -96,7 +96,13 @@ func main() {
 	for {
 		displayBoard()
 		fmt.Printf("Jogador %c, insira a linha e a coluna: ", currentPlayer)
+		_, err := fmt.Scanf("%d %d", &row, &col)
 
+		// Certifique-se de que a entrada seja válida antes de continuar
+		if err != nil || !isValidMove(row, col) {
+			fmt.Println("Movimento inválido! Tente novamente.")
+			continue
+		}
 		makeMove(row, col)
 
 		if winner := checkWinner(); winner != EMPTY {
