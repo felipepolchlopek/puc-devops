@@ -77,3 +77,15 @@ func checkWinner() rune {
 	}
 	return EMPTY
 }
+
+// Verifica se há empate
+func isDraw() bool {
+	for i := 0; i < 3; i++ {
+		for j := 0; j < 3; j++ {
+			if board[i][j] == EMPTY {
+				return false
+			}
+		}
+	}
+	return true
+}
