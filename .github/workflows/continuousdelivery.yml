@@ -1,0 +1,30 @@
+name: Continuous Delivery
+on: 
+    push:
+        branches:
+            -main  #ou qualquer outra branch
+jobs:
+  deliver:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Continuous Delivery
+        uses: Shopify/upload-to-release@v1
+        with:
+          name: projetozipado.zip
+          path: 
+            main.go
+            README.md   
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+        
+  deploy:
+    runs-on: ubunt-latest
+    needs: deliver
+    steps:
+        - uses: actions/download-artifact@v4
+          with:
+            name: projetozipado.zip
+        - name: Display structure of download files
+          run: ls -R    
