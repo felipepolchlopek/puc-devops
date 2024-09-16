@@ -15,5 +15,5 @@ jobs:
         with:
           name: projetozipado.zip
           path: |
-            **.go
+            '**.go'
             README.md
