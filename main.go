@@ -52,3 +52,8 @@ func switchPlayer() {
 		currentPlayer = PLAYER_X
 	}
 }
+
+// Faz a jogada no tabuleiro
+func makeMove(row, col int) {
+	board[row][col] = currentPlayer
+}
