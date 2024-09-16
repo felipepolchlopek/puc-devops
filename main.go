@@ -43,3 +43,12 @@ func displayBoard() {
 func isValidMove(row, col int) bool {
 	return row >= 0 && row < 3 && col >= 0 && col < 3 && board[row][col] == EMPTY
 }
+
+// Alterna entre os jogadores
+func switchPlayer() {
+	if currentPlayer == PLAYER_X {
+		currentPlayer = PLAYER_O
+	} else {
+		currentPlayer = PLAYER_X
+	}
+}
