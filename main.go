@@ -38,3 +38,8 @@ func displayBoard() {
 		}
 	}
 }
+
+// Verifica se a posição é válida e está disponível
+func isValidMove(row, col int) bool {
+	return row >= 0 && row < 3 && col >= 0 && col < 3 && board[row][col] == EMPTY
+}
