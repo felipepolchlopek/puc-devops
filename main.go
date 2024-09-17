@@ -1,6 +1,11 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"net/http"
+	"strconv"
+	"strings"
+)
 
 const (
 	EMPTY    = ' '
@@ -22,21 +27,23 @@ func initializeBoard() {
 }
 
 // Exibe o tabuleiro
-func displayBoard() {
-	fmt.Println("  0   1   2")
+func displayBoard() string {
+	var sb strings.Builder
+	sb.WriteString("  0   1   2\n")
 	for i := 0; i < 3; i++ {
-		fmt.Printf("%d", i)
+		sb.WriteString(fmt.Sprintf("%d", i))
 		for j := 0; j < 3; j++ {
-			fmt.Printf(" %c ", board[i][j])
+			sb.WriteString(fmt.Sprintf(" %c ", board[i][j]))
 			if j < 2 {
-				fmt.Print("|")
+				sb.WriteString("|")
 			}
 		}
-		fmt.Println()
+		sb.WriteString("\n")
 		if i < 2 {
-			fmt.Println(" ---|---|---")
+			sb.WriteString(" ---|---|---\n")
 		}
 	}
+	return sb.String()
 }
 
 // Verifica se a posição é válida e está disponível
@@ -90,31 +97,46 @@ func isDraw() bool {
 	return true
 }
 
-func main() {
-	var row, col int
-	initializeBoard()
-	for {
-		displayBoard()
-		fmt.Printf("Jogador %c, insira a linha e a coluna: ", currentPlayer)
-		_, err := fmt.Scanf("%d %d", &row, &col)
+// Handler para exibir o tabuleiro
+func boardHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "text/plain")
+	fmt.Fprint(w, displayBoard())
+}
 
-		// Certifique-se de que a entrada seja válida antes de continuar
-		if err != nil || !isValidMove(row, col) {
-			fmt.Println("Movimento inválido! Tente novamente.")
-			continue
-		}
-		makeMove(row, col)
+// Handler para realizar jogadas
+func moveHandler(w http.ResponseWriter, r *http.Request) {
+	rowStr := r.URL.Query().Get("row")
+	colStr := r.URL.Query().Get("col")
 
-		if winner := checkWinner(); winner != EMPTY {
-			displayBoard()
-			fmt.Printf("Jogador %c venceu!\n", winner)
-			break
-		} else if isDraw() {
-			displayBoard()
-			fmt.Println("Empate!")
-			break
-		}
+	row, err1 := strconv.Atoi(rowStr)
+	col, err2 := strconv.Atoi(colStr)
 
-		switchPlayer()
+	if err1 != nil || err2 != nil || !isValidMove(row, col) {
+		http.Error(w, "Movimento inválido", http.StatusBadRequest)
+		return
 	}
+
+	makeMove(row, col)
+
+	// Verificar se há vencedor ou empate
+	if winner := checkWinner(); winner != EMPTY {
+		fmt.Fprintf(w, "Jogador %c venceu!\n", winner)
+	} else if isDraw() {
+		fmt.Fprint(w, "Empate!\n")
+	} else {
+		switchPlayer()
+		fmt.Fprintf(w, "Jogador %c fez uma jogada.\n", currentPlayer)
+	}
+}
+
+func main() {
+	initializeBoard()
+
+	// Configurar handlers
+	http.HandleFunc("/board", boardHandler)
+	http.HandleFunc("/move", moveHandler)
+
+	// Escutar na porta 8081
+	fmt.Println("Servidor rodando na porta 8081...")
+	http.ListenAndServe(":8081", nil)
 }
