@@ -9,31 +9,31 @@ import (
 
 const (
 	EMPTY    = ' '
-	PLAYER_X = 'K'
+	PLAYER_X = 'X'
 	PLAYER_O = 'O'
 )
 
-var board [3][3]rune
-var currentPlayer rune
+var Board [3][3]rune
+var CurrentPlayer rune
 
 // Inicializa o tabuleiro vazio
-func initializeBoard() {
+func InitializeBoard() {
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 3; j++ {
-			board[i][j] = EMPTY
+			Board[i][j] = EMPTY
 		}
 	}
-	currentPlayer = PLAYER_X
+	CurrentPlayer = PLAYER_X
 }
 
 // Exibe o tabuleiro
-func displayBoard() string {
+func DisplayBoard() string {
 	var sb strings.Builder
 	sb.WriteString("  0   1   2\n")
 	for i := 0; i < 3; i++ {
 		sb.WriteString(fmt.Sprintf("%d", i))
 		for j := 0; j < 3; j++ {
-			sb.WriteString(fmt.Sprintf(" %c ", board[i][j]))
+			sb.WriteString(fmt.Sprintf(" %c ", Board[i][j]))
 			if j < 2 {
 				sb.WriteString("|")
 			}
@@ -47,49 +47,48 @@ func displayBoard() string {
 }
 
 // Verifica se a posição é válida e está disponível
-func isValidMove(row, col int) bool {
-	return row >= 0 && row < 3 && col >= 0 && col < 3 && board[row][col] == EMPTY
+func IsValidMove(row, col int) bool {
+	return row >= 0 && row < 3 && col >= 0 && col < 3 && Board[row][col] == EMPTY
 }
 
 // Alterna entre os jogadores
-func switchPlayer() {
-	if currentPlayer == PLAYER_X {
-		currentPlayer = PLAYER_O
+func SwitchPlayer() {
+	if CurrentPlayer == PLAYER_X {
+		CurrentPlayer = PLAYER_O
 	} else {
-		currentPlayer = PLAYER_X
+		CurrentPlayer = PLAYER_X
 	}
 }
 
 // Faz a jogada no tabuleiro
-func makeMove(row, col int) {
-	board[row][col] = currentPlayer
+func MakeMove(row, col int) {
+	Board[row][col] = CurrentPlayer
 }
 
 // Verifica se há um vencedor
-func checkWinner() rune {
-	// Verifica linhas, colunas e diagonais
+func CheckWinner() rune {
 	for i := 0; i < 3; i++ {
-		if board[i][0] == board[i][1] && board[i][1] == board[i][2] && board[i][0] != EMPTY {
-			return board[i][0]
+		if Board[i][0] == Board[i][1] && Board[i][1] == Board[i][2] && Board[i][0] != EMPTY {
+			return Board[i][0]
 		}
-		if board[0][i] == board[1][i] && board[1][i] == board[2][i] && board[0][i] != EMPTY {
-			return board[0][i]
+		if Board[0][i] == Board[1][i] && Board[1][i] == Board[2][i] && Board[0][i] != EMPTY {
+			return Board[0][i]
 		}
 	}
-	if board[0][0] == board[1][1] && board[1][1] == board[2][2] && board[0][0] != EMPTY {
-		return board[0][0]
+	if Board[0][0] == Board[1][1] && Board[1][1] == Board[2][2] && Board[0][0] != EMPTY {
+		return Board[0][0]
 	}
-	if board[0][2] == board[1][1] && board[1][1] == board[2][0] && board[0][2] != EMPTY {
-		return board[0][2]
+	if Board[0][2] == Board[1][1] && Board[1][1] == Board[2][0] && Board[0][2] != EMPTY {
+		return Board[0][2]
 	}
 	return EMPTY
 }
 
 // Verifica se há empate
-func isDraw() bool {
+func IsDraw() bool {
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 3; j++ {
-			if board[i][j] == EMPTY {
+			if Board[i][j] == EMPTY {
 				return false
 			}
 		}
@@ -98,45 +97,42 @@ func isDraw() bool {
 }
 
 // Handler para exibir o tabuleiro
-func boardHandler(w http.ResponseWriter, r *http.Request) {
+func BoardHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain")
-	fmt.Fprint(w, displayBoard())
+	fmt.Fprint(w, DisplayBoard())
 }
 
 // Handler para realizar jogadas
-func moveHandler(w http.ResponseWriter, r *http.Request) {
+func MoveHandler(w http.ResponseWriter, r *http.Request) {
 	rowStr := r.URL.Query().Get("row")
 	colStr := r.URL.Query().Get("col")
 
 	row, err1 := strconv.Atoi(rowStr)
 	col, err2 := strconv.Atoi(colStr)
 
-	if err1 != nil || err2 != nil || !isValidMove(row, col) {
+	if err1 != nil || err2 != nil || !IsValidMove(row, col) {
 		http.Error(w, "Movimento inválido", http.StatusBadRequest)
 		return
 	}
 
-	makeMove(row, col)
+	MakeMove(row, col)
 
-	// Verificar se há vencedor ou empate
-	if winner := checkWinner(); winner != EMPTY {
+	if winner := CheckWinner(); winner != EMPTY {
 		fmt.Fprintf(w, "Jogador %c venceu!\n", winner)
-	} else if isDraw() {
+	} else if IsDraw() {
 		fmt.Fprint(w, "Empate!\n")
 	} else {
-		switchPlayer()
-		fmt.Fprintf(w, "Jogador %c fez uma jogada.\n", currentPlayer)
+		SwitchPlayer()
+		fmt.Fprintf(w, "Jogador %c fez uma jogada.\n", CurrentPlayer)
 	}
 }
 
 func main() {
-	initializeBoard()
+	InitializeBoard()
 
-	// Configurar handlers
-	http.HandleFunc("/board", boardHandler)
-	http.HandleFunc("/move", moveHandler)
+	http.HandleFunc("/board", BoardHandler)
+	http.HandleFunc("/move", MoveHandler)
 
-	// Escutar na porta 8081
 	fmt.Println("Servidor rodando na porta 8081...")
 	http.ListenAndServe(":8081", nil)
 }
