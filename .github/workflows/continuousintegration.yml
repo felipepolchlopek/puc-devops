@@ -32,7 +32,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Build Docker image
-        run: docker build -t main.go ./src
+        run: docker build -t main.go .
       - name: Run Docker container
         run: docker run -d -p 8081:8081 main.go
 
