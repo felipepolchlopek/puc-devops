@@ -16,8 +16,13 @@ jobs:
       - uses: actions/setup-go@v5
         with:
             go-version: '1.23' # The Go version to download (if necessary) and use.
+<<<<<<< Updated upstream
       - run: go build main.go
 
+=======
+      - run: go build src/main.go
+    
+>>>>>>> Stashed changes
   docker:
     runs-on: ubuntu-latest
     services:
@@ -30,6 +35,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Build Docker image
-        run: docker build -t main.go .
+        run: docker build -t src/main.go .
       - name: Run Docker container
-        run: docker run -d -p 8081:8081 main.go
+        run: docker run -d -p 8081:8081 src/main.go
