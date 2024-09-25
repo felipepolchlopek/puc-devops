@@ -19,15 +19,6 @@ jobs:
       - run: go build main.go
     
 
-  discord:
-      runs-on: ubuntu-latest
-      steps:
-      - uses: Sniddl/discord-commits@v1.6
-        with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          template: "avatar-with-link"
-          include-extras: true
-
   docker:
     runs-on: ubuntu-latest
     services:
