@@ -32,9 +32,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Build Docker image
-        run: docker build -t src/main.go .
+        run: docker build -t main.go ./src
       - name: Run Docker container
-        run: docker run -d -p 8081:8081 src/main.go
+        run: docker run -d -p 8081:8081 main.go
 
         
   tests:
@@ -49,4 +49,4 @@ jobs:
       - name: Build
         run: go build -v -o myapp ./...
       - name: Test with the Go CLI
-        run: go test
+        run: go test ./src/...
