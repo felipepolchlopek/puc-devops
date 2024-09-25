@@ -1,0 +1,45 @@
+name: Continuous Integration
+on: 
+    pull_request:
+        branches:
+            - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+  
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+            go-version: '1.23' # The Go version to download (if necessary) and use.
+      - run: go build main.go
+    
+
+  discord:
+      runs-on: ubuntu-latest
+      steps:
+      - uses: Sniddl/discord-commits@v1.6
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          template: "avatar-with-link"
+          include-extras: true
+
+  docker:
+    runs-on: ubuntu-latest
+    services:
+      docker:
+        image: docker:20.10.7
+        options: --privileged
+        ports:
+          - 8081:8081
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Build Docker image
+        run: docker build -t main.go .
+      - name: Run Docker container
+        run: docker run -d -p 8081:8081 main.go
