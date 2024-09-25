@@ -17,6 +17,10 @@ jobs:
         with:
             go-version: '1.16.1' # The Go version to download (if necessary) and use.
       - run: go run main.go
-
-
+    
       
+      - uses: Sniddl/discord-commits@v1.6
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          template: "avatar-with-link"
+          include-extras: true
