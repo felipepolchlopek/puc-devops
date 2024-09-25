@@ -9,7 +9,7 @@ import (
 
 const (
 	EMPTY    = ' '
-	PLAYER_X = 'X'
+	PLAYER_X = 'K'
 	PLAYER_O = 'O'
 )
 
